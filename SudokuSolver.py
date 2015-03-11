@@ -1,6 +1,7 @@
 # @author:  Tanzeem Chowdhury [997574726]
-# @brief:   Using different search algorthms to solve sudoku puzzles
+# @brief:   Using different search algorithms to solve sudoku puzzles
 
+from itertools import *
 
 # Opens puzzle from filename, and store puzzle content. 
 # Returns a list, containing nested lists, each of which contains cell values of a row.
@@ -20,7 +21,8 @@ def read_puzzle(filename):
 
 
 # Given a puzzle, returns whether all rows are valid, that is, true if all rows do not contain
-# empty spaces (represented by 0) and do not contain duplicates
+# empty spaces (represented by 0) and do not contain duplicates.
+# Returns false as soon as an invalid row is found.
 def check_rows(puzzle):
     
     for row in puzzle:
@@ -36,7 +38,8 @@ def check_rows(puzzle):
 
 
 # Given a puzzle, returns whether all columns are valid, that is, true if all columns do not
-# contain empty spaces (represented by 0) and do not contain duplicates
+# contain empty spaces (represented by 0) and do not contain duplicates.
+# Returns false as soon as an invalid column is found.
 def check_columns(puzzle):
 
     # Iterate to check each column
@@ -61,7 +64,8 @@ def check_columns(puzzle):
 
 
 # Given a puzzle, returns whether all houses (3x3 sub square) are valid, that is, true if all 
-# houses do not contain empty spaces (represented by 0) and do not contain duplicates
+# houses do not contain empty spaces (represented by 0) and do not contain duplicates.
+# Returns false as soon as an invalid house is found.
 def check_houses(puzzle):
 
     # Puzzle is stored as list of rows. Get the coordinates of the center cells of each 3x3 house
@@ -91,15 +95,73 @@ def check_houses(puzzle):
     return True
 
 
+# Returns whether a puzzle's current state is in goal state, i.e. solved
 def is_goal_state(puzzle):
 
-    # Puzzle is in goal state, i.e. solved, if all rows, columns and houses are valid
+    # In goal state if all rows, columns and houses are valid
     return check_rows(puzzle) and check_columns(puzzle) and check_houses(puzzle)
+
+
+# Return a list containing all the coordinates of puzzle that contain an empty space
+def get_empty_cells(puzzle):
+
+    empty_cells = []
+
+    # Iterate through each row and column index to search for 0's, which represent a blank space
+    row = 0
+    while row < 9:
+        column = 0
+        while column < 9:
+            if puzzle[row][column] == "0":
+                empty_cells.append((row, column))
+            column += 1
+        row += 1
+
+    return empty_cells
+
+
+# Attempts to solve sudoku puzzle using the brute force method
+def brute_force(puzzle):
+
+    # Get a list of coordinates of all the empty cells
+    blanks = get_empty_cells(puzzle)
+
+    # Since we are brute forcing, we need every single permutation of possible values we can insert
+    # into empty cell values. We can get all possible blanks using the product method from the
+    # module itertools, providing it the range of numbers we want (1 - 9), and repeat value, which
+    # is the number of blanks we have
+    possible_blanks = product(range(1, 10), repeat=len(blanks))
+
+    # Starting with the first permutation (e.g. (1, 1, 1, ...) ), iter through all possibilities
+    # until a permuation is found that solves the puzzle
+    for p in possible_blanks:
+        i = 0
+        while i < len(blanks):
+
+            # Use the coordinates from empty cells list, and place the value from the permutation
+            # in there
+            row = blanks[i][0]
+            column = blanks[i][1]
+            puzzle[row][column] = str(p[i])
+
+            i += 1
+        
+        # Once a single permuation's values are inserted into the puzzle, check if the puzzle is
+        # solved. If so, return immediatley to stop looping through the rest of the permuations
+        if is_goal_state(puzzle):
+            return
+
+    return
 
 
 # Main method
 if __name__ == "__main__":
 
-    puzzle = read_puzzle("examplePuzzle.txt")
-    print is_goal_state(puzzle)
+    # Read puzzle
+    puzzle = read_puzzle("exampleEasy.txt")
+
+    # Use brute force algorithm
+    brute_force(puzzle)
+
+
     
