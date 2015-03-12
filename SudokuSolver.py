@@ -30,7 +30,7 @@ def check_rows(puzzle):
         # Get set of list. If set contains 0 (empty space), or the set does not have length 9, 
         # meaning there were duplicates in the row, the row is invalid, so return false
         row_set = set(row)
-        if 0 in row_set or len(row_set) != 9:
+        if str(0) in row_set or len(row_set) != 9:
             return False
     # If code reaches here, all rows are valid, therefore return true
     return True
@@ -50,7 +50,7 @@ def check_columns(puzzle):
         # Get set of list. If set contains 0 (empty space), or the set does not have length 9, 
         # meaning there were duplicates in the column, the column is invalid, so return false
         col_set = set(column)
-        if 0 in col_set or len(col_set) != 9:
+        if str(0) in col_set or len(col_set) != 9:
             return False
         i += 1
     # If code reaches here, all columns are valid, therefore return true
@@ -75,7 +75,7 @@ def check_houses(puzzle):
         # Get set of list. If set contains 0 (empty space), or the set does not have length 9,
         # meaning there were duplicates in the house, the house is invalid, so return false
         house_set = set(house)
-        if 0 in house_set or len(house_set) != 9:
+        if str(0) in house_set or len(house_set) != 9:
             return False
         i += 1
     # If code reaches here, all houses are valid, therefore return true
@@ -88,7 +88,8 @@ def is_goal_state(puzzle):
     return check_rows(puzzle) and check_columns(puzzle) and check_houses(puzzle)
 
 
-# Return a list containing all the coordinates of puzzle that contain an empty space
+# Searches a puzzle for empty spaces, and returns a list containing all the coordinates of empty 
+# spaces
 def get_empty_cells(puzzle):
     empty_cells = []
     # Iterate through each row and column index to search for 0's, which represent a blank space
@@ -131,35 +132,66 @@ def brute_force(puzzle):
             return
     return
 
+# Get a list of all the valid numbers possible for a cell, i.e. numbers that do not conflict with
+# row, column or house of that cell
 def get_valid_nums(puzzle, cell):
     
     valid_numbers = []
 
-    puzzle_row = puzzle[cell[0]]
+    row_coord = cell[0]
+    col_coord = cell[1]
+
+    puzzle_row = puzzle[row_coord]
+
     puzzle_column = []
+    for i in range(0, 9):
+        puzzle_column.append(puzzle[i][col_coord])
 
-    i = 0
-    while i < 9:
-        # check if already in row
-        if !(i in puzzle[row]):
-            # check if already in column
+    if row_coord < 3: house_center_r = 1
+    elif row_coord > 5: house_center_r = 7
+    else: house_center_r = 4
 
+    if col_coord < 3: house_center_c = 1
+    elif col_coord > 5: house_center_c = 7
+    else: house_center_c = 4
 
-    return
+    puzzle_house = []
+    for r in range(-1, 2):
+        for c in range(-1, 2):
+            puzzle_house.append(puzzle[house_center_r+r][house_center_c+c])
+  
+    for i in range(1, 10):
+        num = str(i)
+        if num not in puzzle_row and num not in puzzle_column and num not in puzzle_house:
+            valid_numbers.append(i)
+
+    return valid_numbers
 
 
 def back_tracking(puzzle, empty_cells):
     
     if is_goal_state(puzzle):
+
+        for e in puzzle:
+            print e
+        print "\n"
+
+
         return True
 
+
+
     else:
+
         current_cell = empty_cells[0]
-        #for each value that can legally be put in next_square
-            #put value in next_square (i.e. modify game state)
+        valid_nums = get_valid_nums(puzzle, current_cell)
+        for valid_num in valid_nums:
+            puzzle[current_cell[0]][current_cell[1]] = str(valid_num)
+
+
             if back_tracking(puzzle, empty_cells[1:]):
                 return True
-            #remove value from next_square (i.e. backtrack to a previous state)
+            puzzle[current_cell[0]][current_cell[1]] = str(0)
     return False
 
 
@@ -175,10 +207,16 @@ def forward_checking(puzzle):
 if __name__ == "__main__":
 
     # Read puzzle
-    puzzle = read_puzzle("exampleEasy.txt")
+    puzzle = read_puzzle("examplePuzzle.txt")
+    #puzzle = read_puzzle("exampleEasy.txt")
+
+    empty_cells = get_empty_cells(puzzle)
+
+    back_tracking(puzzle, empty_cells)
 
     # Use brute force algorithm
     #brute_force(puzzle)
+
 
 
     
