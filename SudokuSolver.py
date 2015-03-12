@@ -6,20 +6,39 @@ from itertools import *
 
 
 # Opens puzzle from filename, and store puzzle content. 
-# Returns a list, containing nested lists, each of which contains cell values of a row.
+# Returns a list, containing rows (nested lists), each of which contains cell values of a row.
 def read_puzzle(filename):
-    puzzle_rows = []   
+    puzzle_rows = []
     # Open puzzle from filename
     with open(filename) as f:
         # Read each line of file, i.e. each sudoku row. Since cell values are separated by
         # whitespace, use split to get a list of cell values, and append this row to puzzle
         for line in f:
             puzzle_rows.append(line.split())
+
     return puzzle_rows
 
 
-def write_puzzle(filename):
-    return
+# Write given puzzle to a file with name given by filename
+def write_puzzle(puzzle, filename):
+    file = open(filename, "w")
+    row = 0
+    while row < 9:
+        cell = 0
+        while cell < 9:
+            # If it's not the last cell in a row, write a space after
+            if not cell == 8:
+                file.write(puzzle[row][cell] + " ")
+            # If last cell in row, but not last row, write newline after
+            elif cell == 8 and not row == 8: 
+                file.write(puzzle[row][cell] + "\n")
+            # If last cell in last row, only write the cell value
+            else:
+                file.write(puzzle[row][cell])
+            cell += 1
+        row += 1
+    file.close()
+    return True
 
 
 # Given a puzzle, returns whether all rows are valid, that is, true if all rows do not contain
@@ -32,6 +51,7 @@ def check_rows(puzzle):
         row_set = set(row)
         if str(0) in row_set or len(row_set) != 9:
             return False
+
     # If code reaches here, all rows are valid, therefore return true
     return True
 
@@ -132,34 +152,43 @@ def brute_force(puzzle):
             return
     return
 
+
 # Get a list of all the valid numbers possible for a cell, i.e. numbers that do not conflict with
 # row, column or house of that cell
 def get_valid_nums(puzzle, cell):
     
     valid_numbers = []
 
+    # Get the coordinates of empty cell
     row_coord = cell[0]
     col_coord = cell[1]
 
+    # Get the row the empty cell belongs to
     puzzle_row = puzzle[row_coord]
 
+    # Get the column the empty cell belongs to
     puzzle_column = []
     for i in range(0, 9):
         puzzle_column.append(puzzle[i][col_coord])
 
+    # To get the house the empty cell belongs to, first determine the center cell of that house
+    # based on it's row/column coordinates
     if row_coord < 3: house_center_r = 1
     elif row_coord > 5: house_center_r = 7
     else: house_center_r = 4
-
     if col_coord < 3: house_center_c = 1
     elif col_coord > 5: house_center_c = 7
     else: house_center_c = 4
 
+    # Once we know the center cell of the house, we can get the entire house by retrieving all the
+    # cells around it, which are at indexs from row-1 to row+1, and column-1 to column+1
     puzzle_house = []
     for r in range(-1, 2):
         for c in range(-1, 2):
             puzzle_house.append(puzzle[house_center_r+r][house_center_c+c])
   
+    # For all possible cell values (1-9), if's not already in the same row/column/house, add it to
+    # the list of valid numbers
     for i in range(1, 10):
         num = str(i)
         if num not in puzzle_row and num not in puzzle_column and num not in puzzle_house:
@@ -168,35 +197,33 @@ def get_valid_nums(puzzle, cell):
     return valid_numbers
 
 
+# Attempts to solve sudoku puzzle using the back-tracking (Constraint Satisfaction Problem) method,
+# using recursion to back-track if path leads to incoreect values
 def back_tracking(puzzle, empty_cells):
-    
+    # If the puzzle is solved, then write solution to file
     if is_goal_state(puzzle):
-
-        for e in puzzle:
-            print e
-        print "\n"
-
-
+        write_puzzle(puzzle, "output.txt")
         return True
-
-
-
     else:
-
+        # Get the next empty cell
         current_cell = empty_cells[0]
+        # Get a list of all the valid values the empty cell can be, based on row, column and
+        # house restraints
         valid_nums = get_valid_nums(puzzle, current_cell)
+        
+        # For each value that can legally be put in the empty cell, modify the puzzle by placing 
+        # value in empty cell. Then recurse this function with the rest of the empty cells. If this
+        # value doesn't lead to the solution, the recursive call with eventually return false, then
+        # try the next legal value
         for valid_num in valid_nums:
             puzzle[current_cell[0]][current_cell[1]] = str(valid_num)
-
-
             if back_tracking(puzzle, empty_cells[1:]):
                 return True
+
+            # Reset to cell to empty cell
             puzzle[current_cell[0]][current_cell[1]] = str(0)
+    
     return False
-
-
-
-
 
 
 def forward_checking(puzzle):
