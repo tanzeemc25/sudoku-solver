@@ -190,6 +190,7 @@ def get_valid_nums(puzzle, cell):
     
     valid_numbers = []
 
+    # Get the row/column/house lists the cell belongs to
     groups = get_cell_groups(puzzle, cell)
 
     # For all possible cell values (1-9), if's not already in the same row/column/house, add it to
@@ -200,3 +201,17 @@ def get_valid_nums(puzzle, cell):
             valid_numbers.append(i)
 
     return valid_numbers
+
+
+# Check if placing a value in a cell in the puzzle causes a conflict, i.e. returns True if a value
+# does not exist in the cell's row, column, or house
+def check_cell(puzzle, cell, value):
+    
+    # Get the row/column/house lists the cell belongs to
+    groups = get_cell_groups(puzzle, cell)
+
+    if value not in groups['row'] and value not in groups['column'] and value not in groups['house']:
+        return True
+
+    return False
+

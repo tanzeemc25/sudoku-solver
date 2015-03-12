@@ -59,18 +59,16 @@ def back_tracking(puzzle, empty_cells):
         # Get the next empty cell
         current_cell = empty_cells[0]
         
-        # Get a list of all the valid values the empty cell can be, based on row, column and
-        # house restraints
-        valid_nums = get_valid_nums(puzzle, current_cell)
-        
-        # For each value that can legally be put in the empty cell, modify the puzzle by placing 
-        # value in empty cell. Then recurse this function with the rest of the empty cells. If this
-        # value doesn't lead to the solution, the recursive call with eventually return false, then
-        # try the next legal value
-        for valid_num in valid_nums:
-            puzzle[current_cell[0]][current_cell[1]] = str(valid_num)
-            if back_tracking(puzzle, empty_cells[1:]):
-                return True
+        # For each value that can be put in the empty cell (1-9), assign the value to the empty 
+        # cell. Check if this creates conflicts, and choose next value if it does and so on. If 
+        # constraints are ok, modify puzzle with value and then recurse this function with the 
+        # rest of the empty cells. If this value doesn't lead to the solution, the recursive call 
+        # will eventually return false, then try the next value
+        for i in range(1, 10):
+            if (check_cell(puzzle, current_cell, str(i))):
+                puzzle[current_cell[0]][current_cell[1]] = str(i)
+                if back_tracking(puzzle, empty_cells[1:]):
+                    return True
 
             # Reset to cell to empty cell as we have tried all values
             puzzle[current_cell[0]][current_cell[1]] = str(0)
@@ -78,7 +76,7 @@ def back_tracking(puzzle, empty_cells):
     return False
 
 
-def forward_checking(puzzle):
+def forward_checking_mrv(puzzle):
     return False
 
 
