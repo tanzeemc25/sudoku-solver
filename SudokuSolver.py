@@ -72,14 +72,14 @@ def back_tracking(puzzle, empty_cells):
             if back_tracking(puzzle, empty_cells[1:]):
                 return True
 
-            # Reset to cell to empty cell
+            # Reset to cell to empty cell as we have tried all values
             puzzle[current_cell[0]][current_cell[1]] = str(0)
     
     return False
 
 
 def forward_checking(puzzle):
-    return
+    return False
 
 
 # Main method

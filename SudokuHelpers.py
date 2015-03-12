@@ -149,11 +149,8 @@ def get_empty_cells(puzzle):
     return empty_cells
 
 
-# Get a list of all the valid numbers possible for a cell, i.e. numbers that do not conflict with
-# row, column or house of that cell
-def get_valid_nums(puzzle, cell):
-    
-    valid_numbers = []
+# Given a cell, retrieve the row, column, and house lists it belongs to in the puzzle
+def get_cell_groups(puzzle, cell):
 
     # Get the coordinates of empty cell
     row_coord = cell[0]
@@ -182,12 +179,24 @@ def get_valid_nums(puzzle, cell):
     for r in range(-1, 2):
         for c in range(-1, 2):
             puzzle_house.append(puzzle[house_center_r+r][house_center_c+c])
-  
+
+    # return a dictionary containing the row, column and house
+    return {'row': puzzle_row, 'column': puzzle_column, 'house': puzzle_house}
+
+
+# Get a list of all the valid numbers possible for a cell, i.e. numbers that do not conflict with
+# row, column or house of that cell
+def get_valid_nums(puzzle, cell):
+    
+    valid_numbers = []
+
+    groups = get_cell_groups(puzzle, cell)
+
     # For all possible cell values (1-9), if's not already in the same row/column/house, add it to
     # the list of valid numbers
     for i in range(1, 10):
         num = str(i)
-        if num not in puzzle_row and num not in puzzle_column and num not in puzzle_house:
+        if num not in groups['row'] and num not in groups['column'] and num not in groups['house']:
             valid_numbers.append(i)
 
     return valid_numbers
