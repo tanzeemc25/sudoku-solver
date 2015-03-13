@@ -86,8 +86,12 @@ def back_tracking(puzzle, empty_cells):
             global nodes_expanded
             nodes_expanded += 1
 
-            if (check_cell(puzzle, current_cell, str(i))):
-                puzzle[current_cell[0]][current_cell[1]] = str(i)
+            # Check constraints before assigning the value (or else it'll accidentally find
+            # find itself as duplicate)
+            check = check_cell(puzzle, current_cell, str(i))
+            
+            puzzle[current_cell[0]][current_cell[1]] = str(i)
+            if (check):
                 if back_tracking(puzzle, empty_cells[1:]):
                     return True
 
