@@ -47,10 +47,10 @@ def brute_force(puzzle):
 
 
 # Attempts to solve sudoku puzzle using the back-tracking (Constraint Satisfaction Problem) method,
-# using recursion to back-track if path leads to incoreect values
+# using recursion to back-track if path leads to incorrect values
 def back_tracking(puzzle, empty_cells):
     
-    # If the puzzle is solved, then write solution to file
+    # If the puzzle is solved, write solution to file
     if is_goal_state(puzzle):
         write_puzzle(puzzle, "output.txt")
         return True
@@ -63,7 +63,7 @@ def back_tracking(puzzle, empty_cells):
         # cell. Check if this creates conflicts, and choose next value if it does and so on. If 
         # constraints are ok, modify puzzle with value and then recurse this function with the 
         # rest of the empty cells. If this value doesn't lead to the solution, the recursive call 
-        # will eventually return false, then try the next value
+        # will eventually return false, then try the next value if one exists
         for i in range(1, 10):
             if (check_cell(puzzle, current_cell, str(i))):
                 puzzle[current_cell[0]][current_cell[1]] = str(i)
@@ -76,7 +76,38 @@ def back_tracking(puzzle, empty_cells):
     return False
 
 
+# Attempts to solve sudoku puzzle using the forward-checking with Mininum Remaining Values (MRV) 
+# heuristics method, using recursion to back-track if path leads to incorrect values
 def forward_checking_mrv(puzzle):
+    
+    # If the puzzle is solved, write solution to file
+    if is_goal_state(puzzle):
+        write_puzzle(puzzle, "output.txt")
+        return True
+    
+    else:
+
+        # Get list of all empty cells, and the legal values they can currently take, sorted by
+        # minimum restricted values, i.e. the cells which have the fewest legal options
+        empty_cells = get_empty_cells_mrv(puzzle)
+
+        # Get first mrv empty cell
+        current_cell = empty_cells[0]
+        coords = current_cell[1]
+        legal_values = current_cell[2]
+            
+        # For each value that can legally be put in the chosen empty cell, modify the puzzle by 
+        # placing value in empty cell. Then recurse this function with the rest of the empty cells, 
+        # re-evaluating the mrv cells. If this value doesn't lead to the solution, the recursive 
+        # call with eventually return false, then try the next legal value if one exists
+        for legal_value in legal_values:
+            puzzle[coords[0]][coords[1]] = str(legal_value)
+            if forward_checking_mrv(puzzle):
+                return True
+
+            # Reset to cell to empty cell as we have tried all values
+            puzzle[coords[0]][coords[1]] = str(0)
+    
     return False
 
 
@@ -85,7 +116,7 @@ if __name__ == "__main__":
 
     #FILE_NAME = "exampleEasy.txt"
     FILE_NAME = "examplePuzzle.txt"
-    method = 'BT'
+    method = 'FC-MRV'
 
     # Read puzzle
     puzzle = read_puzzle(FILE_NAME)
@@ -97,6 +128,8 @@ if __name__ == "__main__":
     elif method == 'BT':
         empty_cells = get_empty_cells(puzzle)
         back_tracking(puzzle, empty_cells)
+    elif method == 'FC-MRV':
+        forward_checking_mrv(puzzle)
 
 
 

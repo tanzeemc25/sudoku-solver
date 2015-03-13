@@ -149,6 +149,35 @@ def get_empty_cells(puzzle):
     return empty_cells
 
 
+# Searches a puzzle for empty spaces, and returns a list containing their coordinates, as well as 
+# all valid values for those spaces 
+def get_empty_cells_mrv(puzzle):
+    
+    empty_cells = []
+    
+    # Iterate through each row and column index to search for 0's, which represent a blank space
+    row = 0
+    while row < 9:
+        column = 0
+        while column < 9:
+            if puzzle[row][column] == "0":
+                cell = (row, column)
+
+                # Get all the legal values that can be placed in this cell 
+                valid_nums = get_valid_nums(puzzle, cell)
+                
+                # Append a tuple containing the number of legal values, the cell coords, and the
+                # list of legal values. The number of legal values are at the first index so we
+                # can easily sort the tuples by number of legal values
+                empty_cells.append((len(valid_nums), cell, valid_nums))
+
+            column += 1
+        row += 1
+    
+    # Return empty cells sorted by minimum restricted values
+    return sorted(empty_cells)
+
+
 # Given a cell, retrieve the row, column, and house lists it belongs to in the puzzle
 def get_cell_groups(puzzle, cell):
 
