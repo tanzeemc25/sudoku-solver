@@ -49,6 +49,20 @@ def write_puzzle(puzzle, filename):
     return True
 
 
+# Write clock time and generated node information to a file with name given by filename
+def write_performance(total_time, search_time, nodes_expanded, filename):
+
+	file = open(filename, "w")
+
+	file.write("Total clock time: " + str(total_time*1000) + '\n')
+	file.write("Search clock time: " + str(search_time*1000) + '\n')
+	file.write("Number of nodes generated: " + str(nodes_expanded))
+
+	file.close()
+
+	return True
+
+
 # Output puzzle to the screen
 def output_puzzle(puzzle):
 	
@@ -75,3 +89,11 @@ def output_puzzle(puzzle):
 		row += 1
 
 	print output_str
+
+
+# Output clock time and generated node information to a file with name given by filename
+def output_performance(total_time, search_time, nodes_expanded):
+	
+	print "Total clock time: " + str(total_time*1000)
+	print "Search clock time: " + str(search_time*1000)
+	print "Number of nodes generated: " + str(nodes_expanded)

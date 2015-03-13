@@ -16,6 +16,7 @@ global total_time_stop
 global search_time_start
 global search_time_stop
 global nodes_expanded
+global SOLUTION_FILENAME
 
 
 # Attempts to solve sudoku puzzle using the brute force (exhaustive search) method
@@ -42,18 +43,17 @@ def brute_force(puzzle):
             row = blanks[i][0]
             column = blanks[i][1]
             puzzle[row][column] = str(p[i])
+
+            global nodes_expanded
+            nodes_expanded += 1            
             
             i += 1  
         
         # Once a single permuation's values are inserted into the puzzle, check if the puzzle is
-        # solved. If so, record search stop time, output to the screen and write solution to file
-        if is_goal_state(puzzle):
-            
-            global search_time_stop
-            search_time_stop = timeit.default_timer()
-            
+        # solved. If so, output to the screen and write solution to file
+        if is_goal_state(puzzle):         
             output_puzzle(puzzle)
-            write_puzzle(puzzle, "puzzles/output.txt")
+            write_puzzle(puzzle, SOLUTION_FILENAME)
 
             # return (True for success) immediatley to stop looping through the rest of 
             # the permuations
@@ -66,14 +66,10 @@ def brute_force(puzzle):
 # using recursion to back-track if path leads to incorrect values
 def back_tracking(puzzle, empty_cells):
     
-    # If the puzzle is solved, record search stop time, output to the screen and write solution to file
+    # If the puzzle is solved, output to the screen and write solution to file
     if is_goal_state(puzzle):
-        
-        global search_time_stop
-        search_time_stop = timeit.default_timer()
-
         output_puzzle(puzzle)
-        write_puzzle(puzzle, "puzzles/output.txt")
+        write_puzzle(puzzle, SOLUTION_FILENAME)
         return True
     
     else:
@@ -105,14 +101,10 @@ def back_tracking(puzzle, empty_cells):
 # heuristics method, using recursion to back-track if path leads to incorrect values
 def forward_checking_mrv(puzzle):
     
-    # If the puzzle is solved, record search stop time, output to the screen write solution to file
+    # If the puzzle is solved, output to the screen write solution to file
     if is_goal_state(puzzle):
-
-        global search_time_stop
-        search_time_stop = timeit.default_timer()
-
         output_puzzle(puzzle)
-        write_puzzle(puzzle, "puzzles/output.txt")
+        write_puzzle(puzzle, SOLUTION_FILENAME)
         return True
     
     else:
@@ -148,42 +140,51 @@ def forward_checking_mrv(puzzle):
 # Main method
 if __name__ == "__main__":
 
+    # Start timing total time
     total_time_start = timeit.default_timer()
+
     nodes_expanded = 0
 
+    # If user doesn't provide the correct amount of arguments, send msg
     if len(sys.argv) != 3:
         print "Please use correct synopsis. Usage: SudokuSolver.py puzzlefilename algorithm"
 
     else:
-        FILE_NAME = sys.argv[1]
+        PUZZLE_FILENAME = sys.argv[1]
         METHOD = sys.argv[2]
 
+        # Solution and Performance output file names are dependant on input filename
+        SOLUTION_FILENAME = 'solution' + PUZZLE_FILENAME[-5:]
+        PERFORMANCE_FILENAME = 'performance' + PUZZLE_FILENAME[-5:]
+
         # Read puzzle
-        puzzle = read_puzzle(FILE_NAME)
+        puzzle = read_puzzle(PUZZLE_FILENAME)
 
         # Use brute force to solve
         if METHOD == 'BF':
             search_time_start = timeit.default_timer()
             brute_force(puzzle)
+            search_time_stop = timeit.default_timer()
 
         # Use back tracking to solve
         elif METHOD == 'BT':
             search_time_start = timeit.default_timer()
             empty_cells = get_empty_cells(puzzle)
             back_tracking(puzzle, empty_cells)
+            search_time_stop = timeit.default_timer()
 
         # Use forward checking with MRV to solve
         elif METHOD == 'FC-MRV':
             search_time_start = timeit.default_timer()
             forward_checking_mrv(puzzle)
+            search_time_stop = timeit.default_timer()
         
+        # Stop and calculate times
         total_time_stop = timeit.default_timer()
-        
         search_time = search_time_stop - search_time_start
         total_time = total_time_stop - total_time_start
-        
-        
-        print "Total clock time: " + str(total_time*1000)
-        print "Search clock time: " + str(search_time*1000)
-        print "Number of nodes generated: " + str(nodes_expanded)
+
+        # Output to screen and write to file performance information
+        output_performance(total_time, search_time, nodes_expanded)
+        write_performance(total_time, search_time, nodes_expanded, PERFORMANCE_FILENAME)
     
