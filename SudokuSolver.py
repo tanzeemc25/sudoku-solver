@@ -7,6 +7,15 @@ from itertools import *
 from SudokuHelpers import *
 from SudokuIO import *
 import timeit
+import sys
+
+
+# Set global variables
+global total_time_start
+global total_time_stop
+global search_time_start
+global search_time_stop
+global nodes_expanded
 
 
 # Attempts to solve sudoku puzzle using the brute force (exhaustive search) method
@@ -37,8 +46,13 @@ def brute_force(puzzle):
             i += 1  
         
         # Once a single permuation's values are inserted into the puzzle, check if the puzzle is
-        # solved. If so, output to the screen and write solution to file
+        # solved. If so, record search stop time, output to the screen and write solution to file
         if is_goal_state(puzzle):
+            
+            global search_time_stop
+            search_time_stop = timeit.default_timer()
+            
+            output_puzzle(puzzle)
             write_puzzle(puzzle, "puzzles/output.txt")
 
             # return (True for success) immediatley to stop looping through the rest of 
@@ -52,8 +66,13 @@ def brute_force(puzzle):
 # using recursion to back-track if path leads to incorrect values
 def back_tracking(puzzle, empty_cells):
     
-    # If the puzzle is solved, output to the screen and write solution to file
+    # If the puzzle is solved, record search stop time, output to the screen and write solution to file
     if is_goal_state(puzzle):
+        
+        global search_time_stop
+        search_time_stop = timeit.default_timer()
+
+        output_puzzle(puzzle)
         write_puzzle(puzzle, "puzzles/output.txt")
         return True
     
@@ -67,6 +86,10 @@ def back_tracking(puzzle, empty_cells):
         # rest of the empty cells. If this value doesn't lead to the solution, the recursive call 
         # will eventually return false, then try the next value if one exists
         for i in range(1, 10):
+            
+            global nodes_expanded
+            nodes_expanded += 1
+
             if (check_cell(puzzle, current_cell, str(i))):
                 puzzle[current_cell[0]][current_cell[1]] = str(i)
                 if back_tracking(puzzle, empty_cells[1:]):
@@ -82,8 +105,13 @@ def back_tracking(puzzle, empty_cells):
 # heuristics method, using recursion to back-track if path leads to incorrect values
 def forward_checking_mrv(puzzle):
     
-    # If the puzzle is solved, output to the screen write solution to file
+    # If the puzzle is solved, record search stop time, output to the screen write solution to file
     if is_goal_state(puzzle):
+
+        global search_time_stop
+        search_time_stop = timeit.default_timer()
+
+        output_puzzle(puzzle)
         write_puzzle(puzzle, "puzzles/output.txt")
         return True
     
@@ -103,6 +131,10 @@ def forward_checking_mrv(puzzle):
         # re-evaluating the mrv cells. If this value doesn't lead to the solution, the recursive 
         # call with eventually return false, then try the next legal value if one exists
         for legal_value in legal_values:
+
+            global nodes_expanded
+            nodes_expanded += 1
+
             puzzle[coords[0]][coords[1]] = str(legal_value)
             if forward_checking_mrv(puzzle):
                 return True
@@ -116,29 +148,42 @@ def forward_checking_mrv(puzzle):
 # Main method
 if __name__ == "__main__":
 
-    #FILE_NAME = "exampleEasy.txt"
-    FILE_NAME = "puzzles/examplePuzzle.txt"
-    method = 'FC-MRV'
+    total_time_start = timeit.default_timer()
+    nodes_expanded = 0
 
-    # Read puzzle
-    puzzle = read_puzzle(FILE_NAME)
+    if len(sys.argv) != 3:
+        print "Please use correct synopsis. Usage: SudokuSolver.py puzzlefilename algorithm"
 
+    else:
+        FILE_NAME = sys.argv[1]
+        METHOD = sys.argv[2]
 
-    start = timeit.default_timer()
+        # Read puzzle
+        puzzle = read_puzzle(FILE_NAME)
 
+        # Use brute force to solve
+        if METHOD == 'BF':
+            search_time_start = timeit.default_timer()
+            brute_force(puzzle)
 
-    # Use brute force to solve
-    if method == 'BF':
-        brute_force(puzzle)
-    # Use back tracking to solve
-    elif method == 'BT':
-        empty_cells = get_empty_cells(puzzle)
-        back_tracking(puzzle, empty_cells)
-    elif method == 'FC-MRV':
-        forward_checking_mrv(puzzle)
+        # Use back tracking to solve
+        elif METHOD == 'BT':
+            search_time_start = timeit.default_timer()
+            empty_cells = get_empty_cells(puzzle)
+            back_tracking(puzzle, empty_cells)
 
-
-    stop = timeit.default_timer()
-
-    print stop - start 
+        # Use forward checking with MRV to solve
+        elif METHOD == 'FC-MRV':
+            search_time_start = timeit.default_timer()
+            forward_checking_mrv(puzzle)
+        
+        total_time_stop = timeit.default_timer()
+        
+        search_time = search_time_stop - search_time_start
+        total_time = total_time_stop - total_time_start
+        
+        
+        print "Total clock time: " + str(total_time*1000)
+        print "Search clock time: " + str(search_time*1000)
+        print "Number of nodes generated: " + str(nodes_expanded)
     

@@ -47,3 +47,31 @@ def write_puzzle(puzzle, filename):
     file.close()
     
     return True
+
+
+# Output puzzle to the screen
+def output_puzzle(puzzle):
+	
+	output_str = ""
+	
+	row = 0
+	while row < 9:
+		
+		cell = 0
+		while cell < 9:
+
+			# If it's not the last cell in a row, print a space after
+			if not cell == 8:
+				output_str += puzzle[row][cell] + " "
+			# If last cell in row, but not last row, print newline after
+			elif cell == 8 and not row == 8: 
+				output_str += puzzle[row][cell] + "\n"
+			# If last cell in last row, only print the cell value
+			else:
+				output_str += puzzle[row][cell]
+
+			cell += 1
+
+		row += 1
+
+	print output_str
