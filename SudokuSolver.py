@@ -6,6 +6,7 @@
 from itertools import *
 from SudokuHelpers import *
 from SudokuIO import *
+import timeit
 
 
 # Attempts to solve sudoku puzzle using the brute force (exhaustive search) method
@@ -38,7 +39,7 @@ def brute_force(puzzle):
         # Once a single permuation's values are inserted into the puzzle, check if the puzzle is
         # solved. If so, output to the screen and write solution to file
         if is_goal_state(puzzle):
-            write_puzzle(puzzle, "output.txt")
+            write_puzzle(puzzle, "puzzles/output.txt")
 
             # return (True for success) immediatley to stop looping through the rest of 
             # the permuations
@@ -53,7 +54,7 @@ def back_tracking(puzzle, empty_cells):
     
     # If the puzzle is solved, output to the screen and write solution to file
     if is_goal_state(puzzle):
-        write_puzzle(puzzle, "output.txt")
+        write_puzzle(puzzle, "puzzles/output.txt")
         return True
     
     else:
@@ -83,7 +84,7 @@ def forward_checking_mrv(puzzle):
     
     # If the puzzle is solved, output to the screen write solution to file
     if is_goal_state(puzzle):
-        write_puzzle(puzzle, "output.txt")
+        write_puzzle(puzzle, "puzzles/output.txt")
         return True
     
     else:
@@ -116,11 +117,15 @@ def forward_checking_mrv(puzzle):
 if __name__ == "__main__":
 
     #FILE_NAME = "exampleEasy.txt"
-    FILE_NAME = "examplePuzzle.txt"
+    FILE_NAME = "puzzles/examplePuzzle.txt"
     method = 'FC-MRV'
 
     # Read puzzle
     puzzle = read_puzzle(FILE_NAME)
+
+
+    start = timeit.default_timer()
+
 
     # Use brute force to solve
     if method == 'BF':
@@ -133,5 +138,7 @@ if __name__ == "__main__":
         forward_checking_mrv(puzzle)
 
 
+    stop = timeit.default_timer()
 
+    print stop - start 
     
