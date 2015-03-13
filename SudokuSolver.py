@@ -5,6 +5,7 @@
 
 from itertools import *
 from SudokuHelpers import *
+from SudokuIO import *
 
 
 # Attempts to solve sudoku puzzle using the brute force (exhaustive search) method
@@ -35,7 +36,7 @@ def brute_force(puzzle):
             i += 1  
         
         # Once a single permuation's values are inserted into the puzzle, check if the puzzle is
-        # solved. If so, write solution to file
+        # solved. If so, output to the screen and write solution to file
         if is_goal_state(puzzle):
             write_puzzle(puzzle, "output.txt")
 
@@ -50,7 +51,7 @@ def brute_force(puzzle):
 # using recursion to back-track if path leads to incorrect values
 def back_tracking(puzzle, empty_cells):
     
-    # If the puzzle is solved, write solution to file
+    # If the puzzle is solved, output to the screen and write solution to file
     if is_goal_state(puzzle):
         write_puzzle(puzzle, "output.txt")
         return True
@@ -80,7 +81,7 @@ def back_tracking(puzzle, empty_cells):
 # heuristics method, using recursion to back-track if path leads to incorrect values
 def forward_checking_mrv(puzzle):
     
-    # If the puzzle is solved, write solution to file
+    # If the puzzle is solved, output to the screen write solution to file
     if is_goal_state(puzzle):
         write_puzzle(puzzle, "output.txt")
         return True
