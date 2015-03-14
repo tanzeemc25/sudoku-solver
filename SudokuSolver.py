@@ -87,15 +87,15 @@ def back_tracking(puzzle, empty_cells):
             nodes_expanded += 1
 
             # Check constraints before assigning the value (or else it'll accidentally find
-            # find itself as duplicate)
+            # itself as duplicate)
             check = check_cell(puzzle, current_cell, str(i))
-            
+
             puzzle[current_cell[0]][current_cell[1]] = str(i)
             if (check):
                 if back_tracking(puzzle, empty_cells[1:]):
                     return True
 
-            # Reset to cell to empty cell as we have tried all values
+            # Reset the cell to empty cell as we have tried all values
             puzzle[current_cell[0]][current_cell[1]] = str(0)
     
     return False

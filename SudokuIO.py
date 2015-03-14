@@ -1,6 +1,6 @@
 # @author:  Tanzeem Chowdhury [997574726]
 # @file:    SudokuIO.py
-# @brief:   Contains methods to read/write to files, as well outputting to the screen
+# @brief:   Contains methods to read/write to files, as well as outputting to the screen
 
 
 # Opens puzzle from filename, and store puzzle content. 
